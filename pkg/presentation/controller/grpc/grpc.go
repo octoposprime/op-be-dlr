@@ -5,9 +5,8 @@ import (
 
 	pp_command "github.com/octoposprime/op-be-dlr/internal/application/presentation/port/command"
 	pp_query "github.com/octoposprime/op-be-dlr/internal/application/presentation/port/query"
-	pb_authentication "github.com/octoposprime/op-be-shared/pkg/proto/pb/authentication"
+	pb_dlr "github.com/octoposprime/op-be-shared/pkg/proto/pb/dlr"
 	pb_error "github.com/octoposprime/op-be-shared/pkg/proto/pb/error"
-	pb_user "github.com/octoposprime/op-be-shared/pkg/proto/pb/user"
 	tgrpc "github.com/octoposprime/op-be-shared/tool/grpc"
 	"google.golang.org/grpc"
 )
@@ -15,8 +14,7 @@ import (
 // Grpc is the gRPC API for the application
 type Grpc struct {
 	pb_error.UnimplementedErorrSvcServer
-	pb_user.UnimplementedUserSvcServer
-	pb_authentication.UnimplementedAuthenticationSvcServer
+	pb_dlr.UnimplementedDlrSvcServer
 	queryHandler   pp_query.QueryPort
 	commandHandler pp_command.CommandPort
 }
@@ -40,8 +38,7 @@ func (a *Grpc) Serve(port string) {
 		grpc.UnaryInterceptor(tgrpc.Interceptor),
 	)
 	pb_error.RegisterErorrSvcServer(s, a)
-	pb_user.RegisterUserSvcServer(s, a)
-	pb_authentication.RegisterAuthenticationSvcServer(s, a)
+	pb_dlr.RegisterDlrSvcServer(s, a)
 	if err := s.Serve(listener); err != nil {
 		panic(err)
 	}

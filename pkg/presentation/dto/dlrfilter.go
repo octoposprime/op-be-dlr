@@ -7,33 +7,29 @@ import (
 	"github.com/google/uuid"
 	me "github.com/octoposprime/op-be-dlr/internal/domain/model/entity"
 	mo "github.com/octoposprime/op-be-dlr/internal/domain/model/object"
-	pb "github.com/octoposprime/op-be-shared/pkg/proto/pb/user"
+	pb "github.com/octoposprime/op-be-shared/pkg/proto/pb/dlr"
 	tuuid "github.com/octoposprime/op-be-shared/tool/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// UserFilter is a struct that represents the filter dto of a user.
-type UserFilter struct {
-	proto *pb.UserFilter
+// DlrFilter is a struct that represents the filter dto of a dlr.
+type DlrFilter struct {
+	proto *pb.DlrFilter
 }
 
-// NewUserFilter creates a new *UserFilter.
-func NewUserFilter(pb *pb.UserFilter) *UserFilter {
-	return &UserFilter{
+// NewDlrFilter creates a new *DlrFilter.
+func NewDlrFilter(pb *pb.DlrFilter) *DlrFilter {
+	return &DlrFilter{
 		proto: pb,
 	}
 }
 
-// String returns a string representation of the UserFilter.
-func (s *UserFilter) String() string {
+// String returns a string representation of the DlrFilter.
+func (s *DlrFilter) String() string {
 	return fmt.Sprintf("Id: %v, "+
-		"UserName: %v, "+
-		"Email: %v, "+
-		"UserType: %v, "+
-		"UserStatus: %v, "+
+		"DlrType: %v, "+
+		"DlrStatus: %v, "+
 		"Tags: %v, "+
-		"FirstName: %v, "+
-		"LastName: %v, "+
 		"CreatedAtFrom: %v, "+
 		"CreatedAtTo: %v, "+
 		"UpdatedAtFrom: %v, "+
@@ -44,13 +40,9 @@ func (s *UserFilter) String() string {
 		"Limit: %v, "+
 		"Offset: %v",
 		s.proto.Id,
-		s.proto.Username,
-		s.proto.Email,
-		s.proto.UserType,
-		s.proto.UserStatus,
+		s.proto.DlrType,
+		s.proto.DlrStatus,
 		s.proto.Tags,
-		s.proto.FirstName,
-		s.proto.LastName,
 		s.proto.CreatedAtFrom,
 		s.proto.CreatedAtTo,
 		s.proto.UpdatedAtFrom,
@@ -62,35 +54,27 @@ func (s *UserFilter) String() string {
 		s.proto.Offset)
 }
 
-// NewUserFilterFromEntity creates a new *UserFilter from entity.
-func NewUserFilterFromEntity(entity me.UserFilter) *UserFilter {
+// NewDlrFilterFromEntity creates a new *DlrFilter from entity.
+func NewDlrFilterFromEntity(entity me.DlrFilter) *DlrFilter {
 	id := entity.Id.String()
-	userName := entity.UserName
-	email := entity.Email
-	userType := pb.UserType(entity.UserType)
-	userStatus := pb.UserStatus(entity.UserStatus)
+	dlrType := pb.DlrType(entity.DlrType)
+	dlrStatus := pb.DlrStatus(entity.DlrStatus)
 	tags := entity.Tags
-	firstName := entity.FirstName
-	lastName := entity.LastName
 	createdAtFrom := timestamppb.New(entity.CreatedAtFrom)
 	createdAtTo := timestamppb.New(entity.CreatedAtTo)
 	updatedAtFrom := timestamppb.New(entity.UpdatedAtFrom)
 	updatedAtTo := timestamppb.New(entity.UpdatedAtTo)
 	searchText := entity.SearchText
 	sortType := entity.SortType
-	sortField := pb.UserSortField(entity.SortField)
+	sortField := pb.DlrSortField(entity.SortField)
 	limit := int32(entity.Limit)
 	offset := int32(entity.Offset)
-	return &UserFilter{
-		&pb.UserFilter{
+	return &DlrFilter{
+		&pb.DlrFilter{
 			Id:            &id,
-			Username:      &userName,
-			Email:         &email,
-			UserType:      &userType,
-			UserStatus:    &userStatus,
+			DlrType:       &dlrType,
+			DlrStatus:     &dlrStatus,
 			Tags:          tags,
-			FirstName:     &firstName,
-			LastName:      &lastName,
 			CreatedAtFrom: createdAtFrom,
 			CreatedAtTo:   createdAtTo,
 			UpdatedAtFrom: updatedAtFrom,
@@ -104,39 +88,23 @@ func NewUserFilterFromEntity(entity me.UserFilter) *UserFilter {
 	}
 }
 
-// ToEntity returns a entity representation of the UserFilter.
-func (s *UserFilter) ToEntity() *me.UserFilter {
+// ToEntity returns a entity representation of the DlrFilter.
+func (s *DlrFilter) ToEntity() *me.DlrFilter {
 	id := uuid.UUID{}
 	if s.proto.Id != nil {
 		id = tuuid.FromString(*s.proto.Id)
 	}
-	userName := ""
-	if s.proto.Username != nil {
-		userName = string(*s.proto.Username)
+	dlrType := 0
+	if s.proto.DlrType != nil {
+		dlrType = int(*s.proto.DlrType)
 	}
-	email := ""
-	if s.proto.Email != nil {
-		email = string(*s.proto.Email)
-	}
-	userType := 0
-	if s.proto.UserType != nil {
-		userType = int(*s.proto.UserType)
-	}
-	userStatus := 0
-	if s.proto.UserStatus != nil {
-		userStatus = int(*s.proto.UserStatus)
+	dlrStatus := 0
+	if s.proto.DlrStatus != nil {
+		dlrStatus = int(*s.proto.DlrStatus)
 	}
 	tags := []string{}
 	if s.proto.Tags != nil {
 		tags = s.proto.Tags
-	}
-	firstName := ""
-	if s.proto.FirstName != nil {
-		firstName = string(*s.proto.FirstName)
-	}
-	lastName := ""
-	if s.proto.LastName != nil {
-		lastName = string(*s.proto.LastName)
 	}
 	createdAtFrom := time.Time{}
 	if s.proto.CreatedAtFrom != nil {
@@ -174,22 +142,18 @@ func (s *UserFilter) ToEntity() *me.UserFilter {
 	if s.proto.Offset != nil {
 		offset = int(*s.proto.Offset)
 	}
-	return &me.UserFilter{
+	return &me.DlrFilter{
 		Id:            id,
-		UserName:      userName,
-		Email:         email,
-		UserType:      mo.UserType(userType),
-		UserStatus:    mo.UserStatus(userStatus),
+		DlrType:       mo.DlrType(dlrType),
+		DlrStatus:     mo.DlrStatus(dlrStatus),
 		Tags:          tags,
-		FirstName:     firstName,
-		LastName:      lastName,
 		CreatedAtFrom: createdAtFrom,
 		CreatedAtTo:   createdAtTo,
 		UpdatedAtFrom: updatedAtFrom,
 		UpdatedAtTo:   updatedAtTo,
 		SearchText:    searchText,
 		SortType:      sortType,
-		SortField:     mo.UserSortField(sortField),
+		SortField:     mo.DlrSortField(sortField),
 		Limit:         limit,
 		Offset:        offset,
 	}
