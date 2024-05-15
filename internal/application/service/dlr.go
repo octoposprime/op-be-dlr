@@ -17,54 +17,16 @@ func (a *Service) GetDlrsByFilter(ctx context.Context, dlrFilter me.DlrFilter) (
 
 // CreateDlr sends the given dlr to the repository of the infrastructure layer for creating a new dlr.
 func (a *Service) CreateDlr(ctx context.Context, dlr me.Dlr) (me.Dlr, error) {
-	user.Id = uuid.UUID{}
-	if err := a.ValidateUser(&user); err != nil {
+	dlr.Id = uuid.UUID{}
+	if err := a.ValidateDlr(&dlr); err != nil {
 		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
 		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CreateUser", userId, err.Error()))
-		return me.User{}, err
+		return me.Dlr{}, err
 	}
-	if err := a.CheckUserNameRules(&user); err != nil {
-		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CreateUser", userId, err.Error()))
-		return me.User{}, err
+	if dlr.DlrStatus == mo.DlrStatusNONE {
+		dlr.DlrStatus = mo.DlrStatusACTIVE
 	}
-	if err := a.CheckEmailRules(&user); err != nil {
-		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CreateUser", userId, err.Error()))
-		return me.User{}, err
-	}
-	var userEmailCheckFilter me.UserFilter
-	userEmailCheckFilter.Email = user.Email
-	emailExistsUsers, err := a.GetUsersByFilter(ctx, userEmailCheckFilter)
-	if err != nil {
-		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CreateUser", userId, err.Error()))
-		return me.User{}, err
-	}
-	if emailExistsUsers.TotalRows > 0 {
-		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		err := mo.ErrorUserEmailIsExists
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CreateUser", userId, err.Error()))
-		return me.User{}, err
-	}
-	var userNameCheckFilter me.UserFilter
-	userNameCheckFilter.UserName = user.UserName
-	nameExistsUsers, err := a.GetUsersByFilter(ctx, userNameCheckFilter)
-	if err != nil {
-		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CreateUser", userId, err.Error()))
-		return me.User{}, err
-	}
-	if nameExistsUsers.TotalRows > 0 {
-		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		err := mo.ErrorUserUsernameIsExists
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CreateUser", userId, err.Error()))
-		return me.User{}, err
-	}
-	if user.UserStatus == mo.UserStatusNONE {
-		user.UserStatus = mo.UserStatusACTIVE
-	}
-	return a.DbPort.SaveUser(ctx, user)
+	return a.DbPort.SaveDlr(ctx, dlr)
 }
 
 // UpdateDlrBase sends the given base values of the dlr to the repository of the infrastructure layer for updating base values of dlr data.
