@@ -43,11 +43,8 @@ func (a DbAdapter) GetDlrsByFilter(ctx context.Context, dlrFilter me.DlrFilter) 
 	if dlrFilter.Id.String() != "" && dlrFilter.Id != (uuid.UUID{}) {
 		filter.ID = dlrFilter.Id
 	}
-	if dlrFilter.DlrName != "" {
-		filter.DlrName = dlrFilter.DlrName
-	}
-	if dlrFilter.Email != "" {
-		filter.Email = dlrFilter.Email
+	if dlrFilter.DlrData != "" {
+		filter.DlrData = dlrFilter.DlrData
 	}
 	if dlrFilter.DlrType != 0 {
 		filter.DlrType = int(dlrFilter.DlrType)
@@ -57,12 +54,6 @@ func (a DbAdapter) GetDlrsByFilter(ctx context.Context, dlrFilter me.DlrFilter) 
 	}
 	if len(dlrFilter.Tags) > 0 {
 		filter.Tags = dlrFilter.Tags
-	}
-	if dlrFilter.FirstName != "" {
-		filter.FirstName = dlrFilter.FirstName
-	}
-	if dlrFilter.LastName != "" {
-		filter.LastName = dlrFilter.LastName
 	}
 	if !dlrFilter.CreatedAtFrom.IsZero() && !dlrFilter.CreatedAtTo.IsZero() {
 		qry = qry.Where("created_at between ? and ?", dlrFilter.CreatedAtFrom, dlrFilter.CreatedAtTo)
