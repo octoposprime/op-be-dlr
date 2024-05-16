@@ -69,32 +69,32 @@ func (a *Service) CreateDlr(ctx context.Context, dlr me.Dlr) (me.Dlr, error) {
 
 // UpdateDlrBase sends the given base values of the dlr to the repository of the infrastructure layer for updating base values of dlr data.
 func (a *Service) UpdateDlrBase(ctx context.Context, dlr me.Dlr) (me.Dlr, error) {
-	if user.Id.String() == "" || user.Id == (uuid.UUID{}) {
-		err := mo.ErrorUserIdIsEmpty
-		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateUserStatus", userId, err.Error()))
-		return me.User{}, err
+	if dlr.Id.String() == "" || dlr.Id == (uuid.UUID{}) {
+		err := mo.ErrorDlrIdIsEmpty
+		dlrId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrBase", dlrId, err.Error()))
+		return me.Dlr{}, err
 	}
-	var userFilter me.UserFilter
-	userFilter.Id = user.Id
-	users, err := a.GetUsersByFilter(ctx, userFilter)
+	var dlrFilter me.DlrFilter
+	dlrFilter.Id = dlr.Id
+	dlrs, err := a.GetDlrsByFilter(ctx, dlrFilter)
 	if err != nil {
-		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateUserStatus", userId, err.Error()))
-		return me.User{}, err
+		dlrId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrBase", dlrId, err.Error()))
+		return me.Dlr{}, err
 	}
-	if users.TotalRows > 0 {
-		dbUser := users.Users[0]
-		dbUser.Tags = user.Tags
-		dbUser.DlrType = user.DlrType
-		if err := a.ValidateUser(&dbUser); err != nil {
-			userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-			go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateUserStatus", userId, err.Error()))
-			return me.User{}, err
+	if dlrs.TotalRows > 0 {
+		dbDlr := dlrs.Dlrs[0]
+		dbDlr.Tags = dlr.Tags
+		dbDlr.DlrType = dlr.DlrType
+		if err := a.ValidateDlr(&dbDlr); err != nil {
+			dlrId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+			go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrBase", dlrId, err.Error()))
+			return me.Dlr{}, err
 		}
-		return a.DbPort.SaveUser(ctx, dbUser)
+		return a.DbPort.SaveDlr(ctx, dbDlr)
 	} else {
-		return user, mo.ErrorUserNotFound
+		return dlr, mo.ErrorDlrNotFound
 	}
 }
 
