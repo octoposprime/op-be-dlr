@@ -123,18 +123,12 @@ func (a *Service) UpdateDlrStatus(ctx context.Context, dlr me.Dlr) (me.Dlr, erro
 // DeleteDlr sends the given dlr to the repository of the infrastructure layer for deleting data.
 func (a *Service) DeleteDlr(ctx context.Context, dlr me.Dlr) (me.Dlr, error) {
 	var err error
-	user, err = a.DbPort.DeleteUser(ctx, user)
+	dlr, err = a.DbPort.DeleteDlr(ctx, dlr)
 	if err != nil {
-		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "DeleteUser", userId, err.Error()))
-		return me.User{}, err
+		dlrId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "DeleteDlr", dlrId, err.Error()))
+		return me.Dlr{}, err
 	}
 
-	err = a.RedisPort.DeleteUserPasswordByUserId(ctx, user.Id)
-	if err != nil {
-		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "DeleteUser", userId, err.Error()))
-		return me.User{}, err
-	}
-	return user, err
+	return dlr, err
 }
