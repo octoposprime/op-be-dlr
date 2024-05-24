@@ -10,6 +10,7 @@ var ERRORS []error = []error{
 	ErrorNone,
 	ErrorDlrIsEmpty,
 	ErrorDlrDlrDataIsEmpty,
+	ErrorDlrNotFound,
 }
 
 const (
@@ -25,12 +26,15 @@ const (
 	ErrNotValid      string = "notvalid"
 	ErrInactive      string = "inactive"
 	ErrAlreadyExists string = "alreadyexists"
+	ErrNotFound      string = "notfound"
 )
 
 var (
 	ErrorNone              error = nil
 	ErrorDlrIsEmpty        error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrDlr + smodel.ErrSep + ErrEmpty)
 	ErrorDlrDlrDataIsEmpty error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrDlr + smodel.ErrSep + ErrDlrData + smodel.ErrSep + ErrEmpty)
+	ErrorDlrNotFound       error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrDlr + smodel.ErrSep + ErrNotFound)
+	ErrorDlrIdIsEmpty      error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrDlr + smodel.ErrSep + ErrId + smodel.ErrSep + ErrEmpty)
 )
 
 func GetErrors() []error {
