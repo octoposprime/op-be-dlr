@@ -20,7 +20,7 @@ func (a *Service) CreateDlr(ctx context.Context, dlr me.Dlr) (me.Dlr, error) {
 	dlr.Id = uuid.UUID{}
 	if err := a.ValidateDlr(&dlr); err != nil {
 		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CreateUser", userId, err.Error()))
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CreateDlr", userId, err.Error()))
 		return me.Dlr{}, err
 	}
 	if dlr.DlrStatus == mo.DlrStatusNONE {
