@@ -90,33 +90,35 @@ func (a *Service) UpdateDlrCore(ctx context.Context, dlr me.Dlr) (me.Dlr, error)
 	}
 }
 
-// UpdateDlrStatus sends the given status value of the dlr to the repository of the infrastructure layer for updating status of dlr data.
+// UpdateDlrStatus sends the given status value of the DLR entry to the repository of the infrastructure layer for updating the status of DLR data.
 func (a *Service) UpdateDlrStatus(ctx context.Context, dlr me.Dlr) (me.Dlr, error) {
-	if user.Id.String() == "" || user.Id == (uuid.UUID{}) {
-		err := mo.ErrorUserIdIsEmpty
+	if dlr.Id.String() == "" || dlr.Id == (uuid.UUID{}) {
+		err := mo.ErrorDlrIdIsEmpty
 		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateUserStatus", userId, err.Error()))
-		return me.User{}, err
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrStatus", dlrId, err.Error()))
+		return me.Dlr{}, err
 	}
-	var userFilter me.UserFilter
-	userFilter.Id = user.Id
-	users, err := a.GetUsersByFilter(ctx, userFilter)
+
+	var dlrFilter me.DlrFilter
+	dlrFilter.Id = dlr.Id
+	dlrs, err := a.GetDlrsByFilter(ctx, dlrFilter)
 	if err != nil {
 		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateUserStatus", userId, err.Error()))
-		return me.User{}, err
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrStatus", dlrId, err.Error()))
+		return me.Dlr{}, err
 	}
-	if users.TotalRows > 0 {
-		dbUser := users.Users[0]
-		dbUser.UserStatus = user.UserStatus
-		if err := a.ValidateUser(&dbUser); err != nil {
+
+	if dlrs.TotalRows > 0 {
+		dbDlr := dlrs.Dlrs[0]
+		dbDlr.DlrStatus = dlr.DlrStatus
+		if err := a.ValidateDlr(&dbDlr); err != nil {
 			userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-			go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateUserStatus", userId, err.Error()))
-			return me.User{}, err
+			go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrStatus", dlrId, err.Error()))
+			return me.Dlr{}, err
 		}
-		return a.DbPort.SaveUser(ctx, dbUser)
+		return a.DbPort.SaveDlr(ctx, dbDlr)
 	} else {
-		return user, mo.ErrorUserNotFound
+		return dlr, mo.ErrorDlrNotFound
 	}
 }
 
@@ -125,7 +127,7 @@ func (a *Service) DeleteDlr(ctx context.Context, dlr me.Dlr) (me.Dlr, error) {
 	var err error
 	dlr, err = a.DbPort.DeleteDlr(ctx, dlr)
 	if err != nil {
-		dlrId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
 		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "DeleteDlr", dlrId, err.Error()))
 		return me.Dlr{}, err
 	}
