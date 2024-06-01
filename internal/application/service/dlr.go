@@ -94,7 +94,7 @@ func (a *Service) UpdateDlrCore(ctx context.Context, dlr me.Dlr) (me.Dlr, error)
 func (a *Service) UpdateDlrStatus(ctx context.Context, dlr me.Dlr) (me.Dlr, error) {
 	if dlr.Id.String() == "" || dlr.Id == (uuid.UUID{}) {
 		err := mo.ErrorDlrIdIsEmpty
-		dlrId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
 		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrStatus", dlrId, err.Error()))
 		return me.Dlr{}, err
 	}
@@ -103,7 +103,7 @@ func (a *Service) UpdateDlrStatus(ctx context.Context, dlr me.Dlr) (me.Dlr, erro
 	dlrFilter.Id = dlr.Id
 	dlrs, err := a.GetDlrsByFilter(ctx, dlrFilter)
 	if err != nil {
-		dlrId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
 		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrStatus", dlrId, err.Error()))
 		return me.Dlr{}, err
 	}
@@ -112,7 +112,7 @@ func (a *Service) UpdateDlrStatus(ctx context.Context, dlr me.Dlr) (me.Dlr, erro
 		dbDlr := dlrs.Dlrs[0]
 		dbDlr.DlrStatus = dlr.DlrStatus
 		if err := a.ValidateDlr(&dbDlr); err != nil {
-			dlrId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+			userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
 			go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrStatus", dlrId, err.Error()))
 			return me.Dlr{}, err
 		}
@@ -127,7 +127,7 @@ func (a *Service) DeleteDlr(ctx context.Context, dlr me.Dlr) (me.Dlr, error) {
 	var err error
 	dlr, err = a.DbPort.DeleteDlr(ctx, dlr)
 	if err != nil {
-		dlrId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
 		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "DeleteDlr", dlrId, err.Error()))
 		return me.Dlr{}, err
 	}
