@@ -33,16 +33,16 @@ func (a *Service) CreateDlr(ctx context.Context, dlr me.Dlr) (me.Dlr, error) {
 func (a *Service) UpdateDlrBase(ctx context.Context, dlr me.Dlr) (me.Dlr, error) {
 	if dlr.Id.String() == "" || dlr.Id == (uuid.UUID{}) {
 		err := mo.ErrorDlrIdIsEmpty
-		dlrId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrBase", dlrId, err.Error()))
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrBase", userId, err.Error()))
 		return me.Dlr{}, err
 	}
 	var dlrFilter me.DlrFilter
 	dlrFilter.Id = dlr.Id
 	dlrs, err := a.GetDlrsByFilter(ctx, dlrFilter)
 	if err != nil {
-		dlrId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrBase", dlrId, err.Error()))
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrBase", userId, err.Error()))
 		return me.Dlr{}, err
 	}
 	if dlrs.TotalRows > 0 {
@@ -50,8 +50,8 @@ func (a *Service) UpdateDlrBase(ctx context.Context, dlr me.Dlr) (me.Dlr, error)
 		dbDlr.Tags = dlr.Tags
 		dbDlr.DlrType = dlr.DlrType
 		if err := a.ValidateDlr(&dbDlr); err != nil {
-			dlrId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-			go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrBase", dlrId, err.Error()))
+			userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+			go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateDlrBase", userId, err.Error()))
 			return me.Dlr{}, err
 		}
 		return a.DbPort.SaveDlr(ctx, dbDlr)
